@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Spotify Streamer</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="search_artist_hint">Type the name of artist</string>
+    <string name="title_activity_artist_detailed">Top 10 Tracks</string>
+    <string name="empty_list">Nothing was found...</string>
+    <string name="blank_image">http://i.imgur.com/DvpvklR.png</string>
+</resources>
