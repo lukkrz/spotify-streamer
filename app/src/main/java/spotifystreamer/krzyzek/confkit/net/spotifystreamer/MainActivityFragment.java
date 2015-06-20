@@ -32,10 +32,9 @@ import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.ArtistLocal;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
-    ArrayAdapter<ArtistLocal> mArtistAdapter;
-    private static String TAG = MainActivityFragment.class.getName();
-
     public static String EXTRA_ARTIST_DETAILS = "spotifystreamer.krzyzek.confkit.net.spotifystreamer.ARTIST_DETAILS";
+    private static String TAG = MainActivityFragment.class.getName();
+    ArrayAdapter<ArtistLocal> mArtistAdapter;
     TextView mSearchArtist;
 
 
@@ -167,57 +166,4 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-
-  /*  private class DownloadSpotifyArtist extends AsyncTask<String, Integer, ArrayList> {
-
-        protected ArrayList doInBackground(String... params) {
-
-            ArrayList<kaaes.spotify.webapi.android.models.Artist> artistList = new ArrayList<>();
-            if (params.length!=0) {
-                SpotifyApi api = new SpotifyApi();
-                SpotifyService spotify = api.getService();
-
-                ArtistsPager artistsPager = spotify.searchArtists(params[0], new Callback<ArtistsPager>() {
-                    @Override
-                    public void success(ArtistsPager artistsPager, Response response) {
-                        Log.d(TAG, "Artist found: " + artistsPager.artists.items.toString());
-                        artistList = (ArrayList) artistsPager.artists.items;
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                    }
-                });
-
-
-            }
-            return artistList;
-        }
-
-        protected void onProgressUpdate(Integer... progress) {
-        //    setProgressPercent(progress[0]);
-        }
-
-        protected void onPostExecute(ArrayList result) {
-            if (result.size()==0) {
-                Log.d(TAG, "onPostExecute(): List is empty.");
-            } else {
-                mArtistAdapter.clear();
-                addResultsToAdapter(result);
-            }
-        }
-
-        private void addResultsToAdapter(ArrayList<Artist> result) {
-            for (Artist artist : result) {
-                ArrayList<Image> list = (ArrayList<Image>) artist.images;
-                String urlOfImage;
-                if (list.size()!=0) {
-                    urlOfImage = list.get(0).url;
-                } else {
-                    urlOfImage = "http://i.imgur.com/DvpvklR.png";
-                }
-                mArtistAdapter.add(new ArtistLocal(artist.id, artist.name, urlOfImage));
-            }
-        }
-    }*/
 }
