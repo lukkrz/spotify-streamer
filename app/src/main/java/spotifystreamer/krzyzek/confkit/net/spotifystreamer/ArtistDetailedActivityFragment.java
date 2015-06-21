@@ -42,6 +42,15 @@ public class ArtistDetailedActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
+        mSongsAdapter = new SpotifySongsAdapter(
+                getActivity(),
+                new ArrayList<SongLocal>()
+        );
+    }
+
+    public void onSaveInstanceState(Bundle savedState) {
+        super.onSaveInstanceState(savedState);
     }
 
     public void displayTopSongs(String artistID) {
@@ -93,16 +102,25 @@ public class ArtistDetailedActivityFragment extends Fragment {
         Toast.makeText(getActivity(), getResources().getText(R.string.empty_list), Toast.LENGTH_LONG).show();
     }
 
-    private void addTracksToAdapter(ArrayList<Track> result) {
-        for (Track track : result) {
-            ArrayList<Image> list = (ArrayList<Image>) track.album.images;
-            String urlOfImage;
-            if (list.size()!=0) {
-                urlOfImage = list.get(0).url;
+    private void addTracksToAdapter(ArrayList<Track> tracksArrayList) {
+        for (Track track : tracksArrayList) {
+            ArrayList<Image> imageArrayList = (ArrayList<Image>) track.album.images;
+            String urlOfImageSmall, urlofImageBig;
+            if (imageArrayList.size() != 0) {
+                urlOfImageSmall = imageArrayList.get(0).url;
+                urlofImageBig = imageArrayList.get(0).url;
+                for (Image image : imageArrayList) {
+                    if (image.height == 640 && image.width == 640) {
+                        urlofImageBig = image.url;
+                    } else if (image.height == 200 && image.width == 200) {
+                        urlOfImageSmall = image.url;
+                    }
+                }
             } else {
-                urlOfImage = getActivity().getResources().getString(R.string.blank_image);
+                urlOfImageSmall = getActivity().getResources().getString(R.string.blank_image);
+                urlofImageBig = getActivity().getResources().getString(R.string.blank_image);
             }
-            mSongsAdapter.add(new SongLocal(track.id, track.name, track.album.name, track.href, urlOfImage));
+            mSongsAdapter.add(new SongLocal(track.id, track.name, track.album.name, track.href, urlOfImageSmall, urlofImageBig));
         }
     }
 
@@ -121,11 +139,6 @@ public class ArtistDetailedActivityFragment extends Fragment {
             actionBar.setSubtitle(artistLocal.getmName());
         }
 
-        mSongsAdapter = new SpotifySongsAdapter(
-                getActivity(),
-                new ArrayList<SongLocal>()
-        );
-
         ListView listView = (ListView) rootView.findViewById(R.id.listView);
         listView.setAdapter(mSongsAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -138,7 +151,9 @@ public class ArtistDetailedActivityFragment extends Fragment {
         TextView emptyText = (TextView) rootView.findViewById(android.R.id.empty);
         listView.setEmptyView(emptyText);
 
-        displayTopSongs(artistLocal.getId());
+        if (savedInstanceState == null) {
+            displayTopSongs(artistLocal.getId());
+        }
 
         return rootView;
     }

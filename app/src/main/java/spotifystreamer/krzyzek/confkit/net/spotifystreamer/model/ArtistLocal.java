@@ -7,6 +7,15 @@ import android.os.Parcelable;
  * Created by £ukasz on 2015-06-13.
  */
 public class ArtistLocal implements Parcelable {
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public ArtistLocal createFromParcel(Parcel in) {
+            return new ArtistLocal(in);
+        }
+
+        public ArtistLocal[] newArray(int size) {
+            return new ArtistLocal[size];
+        }
+    };
     private String id;
     private String mName;
     private String mImage;
@@ -47,7 +56,6 @@ public class ArtistLocal implements Parcelable {
         this.mImage = mImage;
     }
 
-
     @Override
     public int describeContents() {
         return 0;
@@ -57,19 +65,7 @@ public class ArtistLocal implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
         dest.writeString(mName);
-        if (mImage != null) {
-            dest.writeString(mImage);
-        }
+        dest.writeString(mImage);
     }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public ArtistLocal createFromParcel(Parcel in) {
-            return new ArtistLocal(in);
-        }
-
-        public ArtistLocal[] newArray(int size) {
-            return new ArtistLocal[size];
-        }
-    };
 
 }

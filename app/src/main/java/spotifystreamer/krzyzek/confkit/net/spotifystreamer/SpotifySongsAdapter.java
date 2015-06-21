@@ -48,7 +48,7 @@ public class SpotifySongsAdapter extends ArrayAdapter<SongLocal> {
 
         viewHolder.artistName.setText(song.getmName());
         viewHolder.albumName.setText(song.getmAlbum());
-        Picasso.with(mContext).load(song.getmImage()).into(viewHolder.albumPicture);
+        Picasso.with(mContext).load(song.getmImageSmall()).into(viewHolder.albumPicture);
 
         return convertView;
     }

@@ -33,11 +33,23 @@ import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.ArtistLocal;
 public class MainActivityFragment extends Fragment {
     public static String EXTRA_ARTIST_DETAILS = "spotifystreamer.krzyzek.confkit.net.spotifystreamer.ARTIST_DETAILS";
     private static String TAG = MainActivityFragment.class.getName();
+
     ArrayAdapter<ArtistLocal> mArtistAdapter;
     TextView mSearchArtist;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        setRetainInstance(true);
+
+        mArtistAdapter = new SpotifyArtistsAdapter(
+                getActivity(),
+                new ArrayList<ArtistLocal>()
+        );
+
+    }
+
+    public void onSaveInstanceState(Bundle savedState) {
+        super.onSaveInstanceState(savedState);
     }
 
     @Override
@@ -45,28 +57,25 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        mArtistAdapter = new SpotifyArtistsAdapter(
-                getActivity(),
-                new ArrayList<ArtistLocal>()
-        );
+        if (savedInstanceState == null) {
+            mSearchArtist = (TextView) rootView.findViewById(R.id.editText);
+            mSearchArtist.addTextChangedListener(new TextWatcher() {
 
-        mSearchArtist = (TextView) rootView.findViewById(R.id.editText);
-        mSearchArtist.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+                    displayArtists(cs.toString());
+                }
 
-            @Override
-            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                displayArtists(cs.toString());
-            }
+                @Override
+                public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                              int arg3) {
+                }
 
-            @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-                                          int arg3) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable arg0) {
-            }
-        });
+                @Override
+                public void afterTextChanged(Editable arg0) {
+                }
+            });
+        }
 
         ListView listView = (ListView) rootView.findViewById(R.id.listView);
         listView.setAdapter(mArtistAdapter);
@@ -131,16 +140,16 @@ public class MainActivityFragment extends Fragment {
         Toast.makeText(getActivity(), getResources().getText(R.string.empty_list_artists), Toast.LENGTH_LONG).show();
     }
 
-    private void addArtistToAdapter(ArrayList<Artist> artistsArray) {
-        for (Artist artist : artistsArray) {
+    private void addArtistToAdapter(ArrayList<Artist> artistsArrayList) {
+        for (Artist artist : artistsArrayList) {
             ArrayList<Image> list = (ArrayList<Image>) artist.images;
-            String urlOfImage;
+            String artistImage;
             if (list.size()!=0) {
-                urlOfImage = list.get(0).url;
+                artistImage = list.get(0).url;
             } else {
-                urlOfImage = getActivity().getResources().getString(R.string.blank_image);
+                artistImage = getActivity().getResources().getString(R.string.blank_image);
             }
-            mArtistAdapter.add(new ArtistLocal(artist.id, artist.name, urlOfImage));
+            mArtistAdapter.add(new ArtistLocal(artist.id, artist.name, artistImage));
         }
     }
 }

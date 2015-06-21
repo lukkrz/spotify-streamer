@@ -7,18 +7,29 @@ import android.os.Parcelable;
  * Created by £ukasz on 2015-06-20.
  */
 public class SongLocal implements Parcelable {
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public SongLocal createFromParcel(Parcel in) {
+            return new SongLocal(in);
+        }
+
+        public SongLocal[] newArray(int size) {
+            return new SongLocal[size];
+        }
+    };
     private String id;
     private String mName;
     private String mAlbum;
     private String mUrl;
-    private String mImage;
+    private String mImageSmall;
+    private String mImageBig;
 
-    public SongLocal(String id, String name, String album, String url, String image) {
+    public SongLocal(String id, String name, String album, String url, String imageSmall, String imageBig) {
         this.id = id;
         this.mName = name;
         this.mAlbum = album;
         this.mUrl = url;
-        this.mImage = image;
+        this.mImageSmall = imageSmall;
+        this.mImageBig = imageBig;
     }
 
     public SongLocal(Parcel object) {
@@ -26,7 +37,8 @@ public class SongLocal implements Parcelable {
         this.mName = object.readString();
         this.mAlbum = object.readString();
         this.mUrl = object.readString();
-        this.mImage = object.readString();
+        this.mImageSmall = object.readString();
+        this.mImageBig = object.readString();
     }
 
     public String getmAlbum() {
@@ -53,12 +65,12 @@ public class SongLocal implements Parcelable {
         this.mName = mName;
     }
 
-    public String getmImage() {
-        return mImage;
+    public String getmImageSmall() {
+        return mImageSmall;
     }
 
-    public void setmImage(String mImage) {
-        this.mImage = mImage;
+    public void setmImageSmall(String mImageSmall) {
+        this.mImageSmall = mImageSmall;
     }
 
     @Override
@@ -72,20 +84,13 @@ public class SongLocal implements Parcelable {
         dest.writeString(mName);
         dest.writeString(mAlbum);
         dest.writeString(mUrl);
-        if (mImage != null) {
-            dest.writeString(mImage);
+        if (mImageSmall != null) {
+            dest.writeString(mImageSmall);
+        }
+        if (mImageBig != null) {
+            dest.writeString(mImageBig);
         }
     }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public SongLocal createFromParcel(Parcel in) {
-            return new SongLocal(in);
-        }
-
-        public SongLocal[] newArray(int size) {
-            return new SongLocal[size];
-        }
-    };
 
 
 }
