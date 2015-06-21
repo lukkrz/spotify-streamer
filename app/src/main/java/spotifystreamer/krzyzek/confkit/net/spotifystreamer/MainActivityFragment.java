@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,24 +36,8 @@ public class MainActivityFragment extends Fragment {
     ArrayAdapter<ArtistLocal> mArtistAdapter;
     TextView mSearchArtist;
 
-
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    public void getDataFromServer() {
-        // mocking getting data from server
-        mArtistAdapter.clear();
-
-        String toSearch = mSearchArtist.getText().toString();
-        if (!toSearch.isEmpty()) {
-            getDataFromSpotify(toSearch);
-        }
     }
 
     @Override
@@ -72,8 +55,7 @@ public class MainActivityFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                // When user changed the Text
-                getDataFromServer();
+                displayArtists(cs.toString());
             }
 
             @Override
@@ -98,27 +80,34 @@ public class MainActivityFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
         TextView emptyText = (TextView)rootView.findViewById(android.R.id.empty);
         listView.setEmptyView(emptyText);
 
         return rootView;
     }
 
-    private void getDataFromSpotify(String params) {
-        if (!params.isEmpty()) {
+    private void displayArtists(String artistName) {
+        mArtistAdapter.clear();
+
+        if (!artistName.isEmpty()) {
+
             SpotifyApi api = new SpotifyApi();
             SpotifyService spotify = api.getService();
 
-            spotify.searchArtists(params, new Callback<ArtistsPager>() {
+            spotify.searchArtists(artistName, new Callback<ArtistsPager>() {
                 @Override
                 public void success(final ArtistsPager artistsPager, Response response) {
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
-                            ArrayList<kaaes.spotify.webapi.android.models.Artist> artistList = new ArrayList<>();
-                            artistList = (ArrayList) artistsPager.artists.items;
-
-                            updateUISuccess(artistList);
+                            ArrayList<kaaes.spotify.webapi.android.models.Artist> artistList =
+                                    (ArrayList) artistsPager.artists.items;
+                            if (artistList.isEmpty()) {
+                                displayNoArtistMessage();
+                            } else {
+                                addArtistToAdapter(artistList);
+                            }
                         }
                     };
                     getActivity().runOnUiThread(runnable);
@@ -129,32 +118,21 @@ public class MainActivityFragment extends Fragment {
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
-                            updateUIFailure();
+                            displayNoArtistMessage();
                         }
                     };
                     getActivity().runOnUiThread(runnable);
                 }
             });
-        } else {
-            Log.d(TAG, "Params is empty");
         }
     }
 
-    private void updateUISuccess(ArrayList result) {
-        if (result.size()==0) {
-            Log.d(TAG, "onPostExecute(): List is empty.");
-        } else {
-            mArtistAdapter.clear();
-            addResultsToAdapter(result);
-        }
+    private void displayNoArtistMessage() {
+        Toast.makeText(getActivity(), getResources().getText(R.string.empty_list_artists), Toast.LENGTH_LONG).show();
     }
 
-    private void updateUIFailure() {
-        Log.d(TAG, "Nothing was found");
-    }
-
-    private void addResultsToAdapter(ArrayList<Artist> result) {
-        for (Artist artist : result) {
+    private void addArtistToAdapter(ArrayList<Artist> artistsArray) {
+        for (Artist artist : artistsArray) {
             ArrayList<Image> list = (ArrayList<Image>) artist.images;
             String urlOfImage;
             if (list.size()!=0) {
@@ -165,5 +143,4 @@ public class MainActivityFragment extends Fragment {
             mArtistAdapter.add(new ArtistLocal(artist.id, artist.name, urlOfImage));
         }
     }
-
 }

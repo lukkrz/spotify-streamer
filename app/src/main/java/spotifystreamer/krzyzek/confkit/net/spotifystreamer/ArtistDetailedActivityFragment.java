@@ -1,10 +1,11 @@
 package spotifystreamer.krzyzek.confkit.net.spotifystreamer;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,9 +34,15 @@ import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.SongLocal;
  * A placeholder fragment containing a simple view.
  */
 public class ArtistDetailedActivityFragment extends Fragment {
-    private static String TAG = "ArtistDetailedActivityFragment";
+    private static String TAG = ArtistDetailedActivityFragment.class.getName();
 
     SpotifySongsAdapter mSongsAdapter;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     public void displayTopSongs(String artistID) {
         mSongsAdapter.clear();
@@ -43,8 +50,13 @@ public class ArtistDetailedActivityFragment extends Fragment {
         SpotifyApi api = new SpotifyApi();
         SpotifyService spotify = api.getService();
 
+        SharedPreferences sharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+
+        String countryPref = sharedPrefs.getString(getString(R.string.pref_country_info_key), Locale.getDefault().getCountry());
+
         Map<String, Object> map = new HashMap<>();
-        map.put("country", Locale.getDefault().getCountry());
+        map.put("country", countryPref);
 
         spotify.getArtistTopTrack(artistID, map, new Callback<Tracks>() {
 
@@ -78,8 +90,7 @@ public class ArtistDetailedActivityFragment extends Fragment {
     }
 
     private void displayNoTracksMessage() {
-        Log.d(TAG, "Nothing was found");
-        Toast.makeText(getActivity(), "No songs found for the artist.", Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), getResources().getText(R.string.empty_list), Toast.LENGTH_LONG).show();
     }
 
     private void addTracksToAdapter(ArrayList<Track> result) {

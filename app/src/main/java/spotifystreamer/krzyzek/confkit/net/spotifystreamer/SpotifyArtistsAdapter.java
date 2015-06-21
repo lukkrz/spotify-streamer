@@ -22,11 +22,6 @@ public class SpotifyArtistsAdapter extends ArrayAdapter<ArtistLocal> {
     Context mContext;
     ArrayList<ArtistLocal> mArrayList;
 
-    static class ViewHolder {
-        TextView mName;
-        ImageView mImage;
-    }
-
     public SpotifyArtistsAdapter(Context context, ArrayList<ArtistLocal> arrayList) {
         super(context, 0, arrayList);
         mContext = context;
@@ -43,16 +38,21 @@ public class SpotifyArtistsAdapter extends ArrayAdapter<ArtistLocal> {
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.fragment_main_list_item, parent, false);
-            viewHolder.mName = (TextView) convertView.findViewById(R.id.textView);
-            viewHolder.mImage = (ImageView) convertView.findViewById(R.id.imageView);
+            viewHolder.artistName = (TextView) convertView.findViewById(R.id.artistName);
+            viewHolder.artistPicture = (ImageView) convertView.findViewById(R.id.artistPicture);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.mName.setText(artist.getmName());
-        Picasso.with(mContext).load(artist.getmImage()).into(viewHolder.mImage);
+        viewHolder.artistName.setText(artist.getmName());
+        Picasso.with(mContext).load(artist.getmImage()).into(viewHolder.artistPicture);
 
         return convertView;
+    }
+
+    static class ViewHolder {
+        TextView artistName;
+        ImageView artistPicture;
     }
 }

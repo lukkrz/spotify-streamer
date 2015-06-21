@@ -27,6 +27,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="spotifystreamer.krzyzek.confkit.net.spotifystreamer.MainActivity" />
         </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_settings">
+
+        </activity>
     </application>
 
 </manifest>
