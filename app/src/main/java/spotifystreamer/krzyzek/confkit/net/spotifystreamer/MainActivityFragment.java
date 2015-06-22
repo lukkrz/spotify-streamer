@@ -33,49 +33,72 @@ import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.ArtistLocal;
 public class MainActivityFragment extends Fragment {
     public static String EXTRA_ARTIST_DETAILS = "spotifystreamer.krzyzek.confkit.net.spotifystreamer.ARTIST_DETAILS";
     private static String TAG = MainActivityFragment.class.getName();
+    private static String ARTIST_ARRAY_KEY = "artistArray";
+    private static String SEARCH_TEXT_KEY = "searchText";
 
-    ArrayAdapter<ArtistLocal> mArtistAdapter;
-    TextView mSearchArtist;
+    private ArrayAdapter<ArtistLocal> mArtistAdapter;
+    private TextView mSearchArtist;
+    private SpotifyApi mSpotifyApi;
+    private ArrayList<ArtistLocal> mArtistList;
+    private String mSearchText;
+    private Toast mToastText;
 
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-        setRetainInstance(true);
 
-        mArtistAdapter = new SpotifyArtistsAdapter(
-                getActivity(),
-                new ArrayList<ArtistLocal>()
-        );
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
+        mSpotifyApi = new SpotifyApi();
+        mToastText = Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT);
+
+        if (savedInstanceState != null) {
+            mArtistList = savedInstanceState.getParcelableArrayList(ARTIST_ARRAY_KEY);
+            mArtistAdapter = new SpotifyArtistsAdapter(
+                    getActivity(),
+                    mArtistList
+            );
+            mSearchText = savedInstanceState.getString(SEARCH_TEXT_KEY);
+        } else {
+            mArtistAdapter = new SpotifyArtistsAdapter(
+                    getActivity(),
+                    new ArrayList<ArtistLocal>()
+            );
+            mSearchText = "";
+        }
     }
 
     public void onSaveInstanceState(Bundle savedState) {
         super.onSaveInstanceState(savedState);
+        savedState.putParcelableArrayList(ARTIST_ARRAY_KEY, mArtistList);
+        //to prevent invoking additional calls to Spotify API after screen rotation
+        savedState.putString(SEARCH_TEXT_KEY, mSearchText);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        if (savedInstanceState == null) {
-            mSearchArtist = (TextView) rootView.findViewById(R.id.editText);
-            mSearchArtist.addTextChangedListener(new TextWatcher() {
+        mSearchArtist = (TextView) rootView.findViewById(R.id.editText);
+        mSearchArtist.addTextChangedListener(new TextWatcher() {
 
-                @Override
-                public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+            @Override
+            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+                if (!(cs.toString()).equals(mSearchText)) {
+                    mSearchText = cs.toString();
                     displayArtists(cs.toString());
                 }
+            }
 
-                @Override
-                public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-                                              int arg3) {
-                }
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                          int arg3) {
+            }
 
-                @Override
-                public void afterTextChanged(Editable arg0) {
-                }
-            });
-        }
+            @Override
+            public void afterTextChanged(Editable arg0) {
+            }
+        });
 
         ListView listView = (ListView) rootView.findViewById(R.id.listView);
         listView.setAdapter(mArtistAdapter);
@@ -83,14 +106,13 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ArtistLocal artist = (ArtistLocal) parent.getAdapter().getItem(position);
-                Toast.makeText(getActivity(), "Clicking on: " + artist.getmName(), Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getActivity(), ArtistDetailedActivity.class);
                 intent.putExtra(EXTRA_ARTIST_DETAILS, artist);
                 startActivity(intent);
             }
         });
 
-        TextView emptyText = (TextView)rootView.findViewById(android.R.id.empty);
+        TextView emptyText = (TextView) rootView.findViewById(android.R.id.empty);
         listView.setEmptyView(emptyText);
 
         return rootView;
@@ -101,8 +123,7 @@ public class MainActivityFragment extends Fragment {
 
         if (!artistName.isEmpty()) {
 
-            SpotifyApi api = new SpotifyApi();
-            SpotifyService spotify = api.getService();
+            SpotifyService spotify = mSpotifyApi.getService();
 
             spotify.searchArtists(artistName, new Callback<ArtistsPager>() {
                 @Override
@@ -113,9 +134,10 @@ public class MainActivityFragment extends Fragment {
                             ArrayList<kaaes.spotify.webapi.android.models.Artist> artistList =
                                     (ArrayList) artistsPager.artists.items;
                             if (artistList.isEmpty()) {
-                                displayNoArtistMessage();
+                                displayText(getResources().getText(R.string.empty_list_artists).toString());
                             } else {
-                                addArtistToAdapter(artistList);
+                                mArtistList = getAristLocalArray(artistList);
+                                mArtistAdapter.addAll(mArtistList);
                             }
                         }
                     };
@@ -127,7 +149,7 @@ public class MainActivityFragment extends Fragment {
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
-                            displayNoArtistMessage();
+                            displayText(getResources().getText(R.string.empty_list_artists_failure).toString());
                         }
                     };
                     getActivity().runOnUiThread(runnable);
@@ -136,20 +158,25 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-    private void displayNoArtistMessage() {
-        Toast.makeText(getActivity(), getResources().getText(R.string.empty_list_artists), Toast.LENGTH_LONG).show();
+    private void displayText(final String message) {
+        mToastText.cancel();
+        mToastText.setText(message);
+        mToastText.show();
     }
 
-    private void addArtistToAdapter(ArrayList<Artist> artistsArrayList) {
+    private ArrayList<ArtistLocal> getAristLocalArray(ArrayList<Artist> artistsArrayList) {
+        ArrayList<ArtistLocal> artistLocalArray = new ArrayList<ArtistLocal>();
         for (Artist artist : artistsArrayList) {
             ArrayList<Image> list = (ArrayList<Image>) artist.images;
             String artistImage;
-            if (list.size()!=0) {
+            if (list.size() != 0) {
                 artistImage = list.get(0).url;
             } else {
                 artistImage = getActivity().getResources().getString(R.string.blank_image);
             }
-            mArtistAdapter.add(new ArtistLocal(artist.id, artist.name, artistImage));
+            artistLocalArray.add(new ArtistLocal(artist.id, artist.name, artistImage));
         }
+        return artistLocalArray;
     }
+
 }

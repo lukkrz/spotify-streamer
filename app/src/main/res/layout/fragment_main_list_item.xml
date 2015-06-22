@@ -6,10 +6,10 @@
 
     <ImageView
         android:id="@+id/artistPicture"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="@dimen/artist_picture_width"
+        android:layout_height="@dimen/artist_picture_height"
         android:layout_gravity="center_vertical"
-        android:padding="5dp"
+        android:padding="@dimen/artist_picture_padding"
         android:scaleType="fitXY"
         android:src="@mipmap/ic_launcher" />
 

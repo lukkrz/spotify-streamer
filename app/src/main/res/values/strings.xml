@@ -7,6 +7,8 @@
 
     <string name="empty_list">Nothing to display.</string>
     <string name="empty_list_artists">Artist not found. Please try again.</string>
+    <string name="empty_list_artists_failure">Error: Artist not found. Please try again.</string>
+
     <string name="pref_country_info_key">Country</string>
 
     <string name="pref_country_info">Country</string>

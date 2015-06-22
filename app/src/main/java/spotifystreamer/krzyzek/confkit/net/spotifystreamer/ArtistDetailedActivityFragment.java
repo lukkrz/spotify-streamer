@@ -35,93 +35,41 @@ import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.SongLocal;
  */
 public class ArtistDetailedActivityFragment extends Fragment {
     private static String TAG = ArtistDetailedActivityFragment.class.getName();
+    private static String SONGS_ARRAY_KEY = "songsArray";
+    private static String COUNTRY_SPOTIFY_API_KEY = "country";
+    private static int LARGE_PICTURE_DIMENS = 640;
+    private static int SMALL_PICTURE_DIMENS = 200;
 
-    SpotifySongsAdapter mSongsAdapter;
+    private SpotifySongsAdapter mSongsAdapter;
+    private ArrayList<SongLocal> mSongsList;
+    private Toast mToastText;
+    private SpotifyApi mSpotifyApi;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
 
-        mSongsAdapter = new SpotifySongsAdapter(
-                getActivity(),
-                new ArrayList<SongLocal>()
-        );
+        mSpotifyApi = new SpotifyApi();
+
+        mToastText = Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT);
+
+        if (savedInstanceState != null) {
+            mSongsList = savedInstanceState.getParcelableArrayList(SONGS_ARRAY_KEY);
+            mSongsAdapter = new SpotifySongsAdapter(
+                    getActivity(),
+                    mSongsList
+            );
+        } else {
+            mSongsAdapter = new SpotifySongsAdapter(
+                    getActivity(),
+                    new ArrayList<SongLocal>()
+            );
+        }
     }
 
     public void onSaveInstanceState(Bundle savedState) {
         super.onSaveInstanceState(savedState);
-    }
-
-    public void displayTopSongs(String artistID) {
-        mSongsAdapter.clear();
-
-        SpotifyApi api = new SpotifyApi();
-        SpotifyService spotify = api.getService();
-
-        SharedPreferences sharedPrefs = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
-
-        String countryPref = sharedPrefs.getString(getString(R.string.pref_country_info_key), Locale.getDefault().getCountry());
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("country", countryPref);
-
-        spotify.getArtistTopTrack(artistID, map, new Callback<Tracks>() {
-
-            @Override
-            public void success(final Tracks tracks, Response response) {
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        ArrayList<kaaes.spotify.webapi.android.models.Track> trackList = (ArrayList) tracks.tracks;
-                        if (trackList.isEmpty()) {
-                            displayNoTracksMessage();
-                        } else {
-                            addTracksToAdapter(trackList);
-                        }
-                    }
-                };
-                getActivity().runOnUiThread(runnable);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        displayNoTracksMessage();
-                    }
-                };
-                getActivity().runOnUiThread(runnable);
-            }
-        });
-    }
-
-    private void displayNoTracksMessage() {
-        Toast.makeText(getActivity(), getResources().getText(R.string.empty_list), Toast.LENGTH_LONG).show();
-    }
-
-    private void addTracksToAdapter(ArrayList<Track> tracksArrayList) {
-        for (Track track : tracksArrayList) {
-            ArrayList<Image> imageArrayList = (ArrayList<Image>) track.album.images;
-            String urlOfImageSmall, urlofImageBig;
-            if (imageArrayList.size() != 0) {
-                urlOfImageSmall = imageArrayList.get(0).url;
-                urlofImageBig = imageArrayList.get(0).url;
-                for (Image image : imageArrayList) {
-                    if (image.height == 640 && image.width == 640) {
-                        urlofImageBig = image.url;
-                    } else if (image.height == 200 && image.width == 200) {
-                        urlOfImageSmall = image.url;
-                    }
-                }
-            } else {
-                urlOfImageSmall = getActivity().getResources().getString(R.string.blank_image);
-                urlofImageBig = getActivity().getResources().getString(R.string.blank_image);
-            }
-            mSongsAdapter.add(new SongLocal(track.id, track.name, track.album.name, track.href, urlOfImageSmall, urlofImageBig));
-        }
+        savedState.putParcelableArrayList(SONGS_ARRAY_KEY, mSongsList);
     }
 
     @Override
@@ -145,9 +93,13 @@ public class ArtistDetailedActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 SongLocal songLocal = (SongLocal) parent.getAdapter().getItem(position);
-                Toast.makeText(getActivity(), "Clicking on: " + songLocal.getmName(), Toast.LENGTH_LONG).show();
+                Toast toast = Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT);
+                toast.cancel();
+                toast = Toast.makeText(getActivity(), "Clicking on: " + songLocal.getmName(), Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
+
         TextView emptyText = (TextView) rootView.findViewById(android.R.id.empty);
         listView.setEmptyView(emptyText);
 
@@ -156,5 +108,80 @@ public class ArtistDetailedActivityFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    public void displayTopSongs(String artistID) {
+        mSongsAdapter.clear();
+
+        SpotifyService spotify = mSpotifyApi.getService();
+
+        SharedPreferences sharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+
+        String countryPref = sharedPrefs.getString(getString(R.string.pref_country_info_key), Locale.getDefault().getCountry());
+
+        Map<String, Object> map = new HashMap<>();
+        map.put(COUNTRY_SPOTIFY_API_KEY, countryPref);
+
+        spotify.getArtistTopTrack(artistID, map, new Callback<Tracks>() {
+
+            @Override
+            public void success(final Tracks tracks, Response response) {
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        ArrayList<kaaes.spotify.webapi.android.models.Track> trackList = (ArrayList) tracks.tracks;
+                        if (trackList.isEmpty()) {
+                            displayText(getResources().getText(R.string.empty_list).toString());
+                        } else {
+                            mSongsList = getSongLocalArray(trackList);
+                            mSongsAdapter.addAll(mSongsList);
+                        }
+                    }
+                };
+                getActivity().runOnUiThread(runnable);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        displayText(getResources().getText(R.string.empty_list).toString());
+                    }
+                };
+                getActivity().runOnUiThread(runnable);
+            }
+        });
+    }
+
+    private void displayText(final String message) {
+        mToastText.cancel();
+        mToastText.setText(message);
+        mToastText.show();
+    }
+
+    private ArrayList<SongLocal> getSongLocalArray(ArrayList<Track> tracksArrayList) {
+        ArrayList<SongLocal> songLocalArray = new ArrayList<SongLocal>();
+        for (Track track : tracksArrayList) {
+            ArrayList<Image> imageArrayList = (ArrayList<Image>) track.album.images;
+            String urlOfImageSmall, urlOfImageBig;
+            if (imageArrayList.size() != 0) {
+                urlOfImageSmall = imageArrayList.get(0).url;
+                urlOfImageBig = imageArrayList.get(0).url;
+                for (Image image : imageArrayList) {
+                    if (image.height == LARGE_PICTURE_DIMENS && image.width == LARGE_PICTURE_DIMENS) {
+                        urlOfImageBig = image.url;
+                    } else if (image.height == SMALL_PICTURE_DIMENS && image.width == SMALL_PICTURE_DIMENS) {
+                        urlOfImageSmall = image.url;
+                    }
+                }
+            } else {
+                urlOfImageSmall = getActivity().getResources().getString(R.string.blank_image);
+                urlOfImageBig = getActivity().getResources().getString(R.string.blank_image);
+            }
+            songLocalArray.add(new SongLocal(track.id, track.name, track.album.name, track.href, urlOfImageSmall, urlOfImageBig));
+        }
+        return songLocalArray;
     }
 }
