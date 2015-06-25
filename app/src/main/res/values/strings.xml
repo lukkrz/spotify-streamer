@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="search_artist_hint">Type the name of the artist.</string>
     <string name="title_activity_artist_detailed">Top 10 Tracks</string>
+    <string name="title_activity_player_activity">Player</string>
     <string name="title_settings">Settings</string>
 
     <string name="empty_list">Nothing to display.</string>
@@ -15,4 +16,10 @@
     <string name="pref_country_info_default">US</string>
 
     <string name="blank_image">http://i.imgur.com/DvpvklR.png</string>
+    <string name="title_activity_simple_player">SimplePlayerActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

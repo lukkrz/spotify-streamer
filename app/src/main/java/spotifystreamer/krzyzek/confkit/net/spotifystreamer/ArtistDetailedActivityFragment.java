@@ -1,5 +1,6 @@
 package spotifystreamer.krzyzek.confkit.net.spotifystreamer;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -37,6 +38,7 @@ public class ArtistDetailedActivityFragment extends Fragment {
     private static String TAG = ArtistDetailedActivityFragment.class.getName();
     private static String SONGS_ARRAY_KEY = "songsArray";
     private static String COUNTRY_SPOTIFY_API_KEY = "country";
+
     private static int LARGE_PICTURE_DIMENS = 640;
     private static int SMALL_PICTURE_DIMENS = 200;
 
@@ -97,6 +99,10 @@ public class ArtistDetailedActivityFragment extends Fragment {
                 toast.cancel();
                 toast = Toast.makeText(getActivity(), "Clicking on: " + songLocal.getmName(), Toast.LENGTH_SHORT);
                 toast.show();
+                Intent intent = new Intent(getActivity(), SimplePlayerActivity.class);
+                intent.putExtra(ArtistDetailedActivity.EXTRA_SONG_DETAILS, songLocal);
+                startActivity(intent);
+
             }
         });
 
@@ -180,7 +186,7 @@ public class ArtistDetailedActivityFragment extends Fragment {
                 urlOfImageSmall = getActivity().getResources().getString(R.string.blank_image);
                 urlOfImageBig = getActivity().getResources().getString(R.string.blank_image);
             }
-            songLocalArray.add(new SongLocal(track.id, track.name, track.album.name, track.href, urlOfImageSmall, urlOfImageBig));
+            songLocalArray.add(new SongLocal(track.id, track.name, track.album.name, track.preview_url, urlOfImageSmall, urlOfImageBig));
         }
         return songLocalArray;
     }

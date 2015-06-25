@@ -84,12 +84,9 @@ public class SongLocal implements Parcelable {
         dest.writeString(mName);
         dest.writeString(mAlbum);
         dest.writeString(mUrl);
-        if (mImageSmall != null) {
-            dest.writeString(mImageSmall);
-        }
-        if (mImageBig != null) {
-            dest.writeString(mImageBig);
-        }
+        dest.writeString(mImageSmall);
+        dest.writeString(mImageBig);
+
     }
 
 

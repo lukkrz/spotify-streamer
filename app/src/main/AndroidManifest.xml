@@ -23,14 +23,22 @@
             android:name=".ArtistDetailedActivity"
             android:label="@string/title_activity_artist_detailed"
             android:parentActivityName=".MainActivity" >
-          <meta-data
+            <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="spotifystreamer.krzyzek.confkit.net.spotifystreamer.MainActivity" />
         </activity>
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_settings">
+            android:label="@string/title_settings"></activity>
+        <activity
+            android:name=".SimplePlayerActivity"
+            android:label="@string/title_activity_simple_player"
+            android:parentActivityName=".ArtistDetailedActivity">
+
         </activity>
+
+        <service android:name=".SimplePlayerService"></service>
+
     </application>
 
 </manifest>
