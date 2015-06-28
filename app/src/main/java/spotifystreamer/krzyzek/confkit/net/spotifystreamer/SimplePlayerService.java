@@ -1,5 +1,7 @@
 package spotifystreamer.krzyzek.confkit.net.spotifystreamer;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -48,22 +50,6 @@ public class SimplePlayerService extends Service implements MediaPlayer.OnPrepar
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand Service no");
-
-        /*if (intent.getAction().equals(ACTION_PLAY)) {
-            Log.d(TAG, "onStartCommand Service");
-            String url = "https://p.scdn.co/mp3-preview/0333accb974b80b31f36bf6a09eb0c4c9f2a3f26";
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            try {
-                mMediaPlayer.setDataSource(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (!mMediaPlayer.isPlaying()) {
-                mMediaPlayer.prepareAsync();
-            }
-        }*/
-        //   setupHandler();
-
         return START_STICKY;
     }
 
@@ -94,6 +80,30 @@ public class SimplePlayerService extends Service implements MediaPlayer.OnPrepar
     public void onPrepared(MediaPlayer player) {
         isInitialized = true;
         mMediaPlayer.start();
+        startNotification();
+    }
+
+    private void startNotification() {
+        if (mMediaPlayer.isPlaying()) {
+
+            Notification note = new Notification(R.drawable.notification_template_icon_bg,
+                    "Can you hear the music?",
+                    System.currentTimeMillis());
+            Intent i = new Intent(this, SimplePlayerActivity.class);
+
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+            PendingIntent pi = PendingIntent.getActivity(this, 0,
+                    i, 0);
+
+            note.setLatestEventInfo(this, "Fake Player",
+                    "Now Playing: \"Ummmm, Nothing\"",
+                    pi);
+            note.flags |= Notification.FLAG_NO_CLEAR;
+
+            startForeground(1337, note);
+        }
     }
 
     @Override
@@ -140,8 +150,8 @@ public class SimplePlayerService extends Service implements MediaPlayer.OnPrepar
         } else {
             mMediaPlayer.reset();
             isInitialized = false;
-            //     isStopDuringInitilizing = true;
         }
+        stopForeground(true);
     }
 
     public void prevMedia() {
