@@ -2,8 +2,6 @@ package spotifystreamer.krzyzek.confkit.net.spotifystreamer;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -12,7 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.ArtistLocal;
 import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.SongLocal;
 
 
@@ -26,18 +29,59 @@ import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.SongLocal;
  */
 public class SimplePlayerActivityFragment extends Fragment {
     private static final String TAG = SimplePlayerActivityFragment.class.getSimpleName();
+    private static String MUSING_PLAYING_KEY = "music_key";
+    private static String SEEKBAR_LAST_POSITION = "seekbar_pos_key";
+    private static String SEEKBAR_MAX_POSITION = "seekbar_max_key";
     private OnFragmentInteractionListener mListener;
-    private ImageView mLeftButton;
-
-
+    private SeekBar.OnSeekBarChangeListener mSeekBarListener;
+    private ImageView mCenterButton, mLeftButton, mRightButton;
+    private boolean mIsMusicPlaying;
+    private TextView mArtistName;
+    private TextView mSongName;
+    private TextView mAlbumName;
+    ;
+    private ImageView mSongImage;
+    private SeekBar mSeekBar;
     public SimplePlayerActivityFragment() {
         // Required empty public constructor
+    }
+
+    public void updateUI(ArtistLocal artistLocal, SongLocal songLocal) {
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.title_activity_player_activity);
+            actionBar.setSubtitle(songLocal.getmName());
+        }
+
+        mSongName.setText(songLocal.getmName());
+        mArtistName.setText(artistLocal.getmName());
+        mAlbumName.setText(songLocal.getmAlbum());
+
+        Picasso.with(getActivity()).load(songLocal.getmImageBig()).into(mSongImage);
+    }
+
+    public void updateSeekBarPostion(int seekMax, int seekProgress) {
+        mSeekBar.setMax(seekMax);
+        mSeekBar.setProgress(seekProgress);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (savedInstanceState != null) {
+            mIsMusicPlaying = savedInstanceState.getBoolean(MUSING_PLAYING_KEY);
+        } else {
+            mIsMusicPlaying = false;
+        }
+
+    }
+
+    public void onSaveInstanceState(Bundle savedState) {
+        super.onSaveInstanceState(savedState);
+        savedState.putBoolean(MUSING_PLAYING_KEY, mIsMusicPlaying);
+        savedState.putInt(SEEKBAR_LAST_POSITION, mSeekBar.getProgress());
+        savedState.putInt(SEEKBAR_MAX_POSITION, mSeekBar.getMax());
     }
 
     @Override
@@ -48,26 +92,92 @@ public class SimplePlayerActivityFragment extends Fragment {
         Bundle bundle = getActivity().getIntent().getExtras();
 
         bundle.setClassLoader(SongLocal.class.getClassLoader());
-        SongLocal songLocal = bundle.getParcelable(ArtistDetailedActivity.EXTRA_SONG_DETAILS);
+        // SongLocal songLocal = bundle.getParcelable(ArtistDetailedActivity.EXTRA_SONG_DETAILS);
 
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.title_activity_player_activity);
-            actionBar.setSubtitle(songLocal.getmName());
+            //   actionBar.setSubtitle(songLocal.getmName());
         }
 
-        mLeftButton = (ImageView) rootView.findViewById(R.id.button_left);
-        mLeftButton.setOnClickListener(new View.OnClickListener() {
+        mArtistName = (TextView) rootView.findViewById(R.id.artist_name);
+        mAlbumName = (TextView) rootView.findViewById(R.id.album_name);
+        mSongName = (TextView) rootView.findViewById(R.id.song_name);
+        mSongImage = (ImageView) rootView.findViewById(R.id.song_image);
+
+        mSeekBar = (SeekBar) rootView.findViewById(R.id.seekBar);
+
+        if (savedInstanceState != null) {
+            mSeekBar.setMax(savedInstanceState.getInt(SEEKBAR_MAX_POSITION));
+            mSeekBar.setProgress(savedInstanceState.getInt(SEEKBAR_LAST_POSITION));
+        }
+
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onCLick");
-                Intent serviceIntent = new Intent(getActivity(), SimplePlayerService.class);
-                serviceIntent.setAction(SimplePlayerService.ACTION_PLAY);
-                getActivity().startService(serviceIntent);
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser)
+                    mListener.onSeekBarClick(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 
+        mLeftButton = (ImageView) rootView.findViewById(R.id.button_left);
+        mRightButton = (ImageView) rootView.findViewById(R.id.button_right);
+
+        mCenterButton = (ImageView) rootView.findViewById(R.id.button_center);
+
+        if (mIsMusicPlaying) {
+            mCenterButton.setImageResource(android.R.drawable.ic_media_pause);
+        }
+
+        mCenterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onCLick Button Center");
+                buttonStopStartPlay();
+            }
+        });
+
+        mLeftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onButtonClick(ButtonType.PREV);
+                stopPlay();
+            }
+        });
+        mRightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onButtonClick(ButtonType.NEXT);
+                stopPlay();
+            }
+        });
         return rootView;
+    }
+
+    private void buttonStopStartPlay() {
+        if (mIsMusicPlaying) {
+            stopPlay();
+            mListener.onButtonClick(ButtonType.STOP);
+        } else {
+            mIsMusicPlaying = true;
+            mCenterButton.setImageResource(android.R.drawable.ic_media_pause);
+            mListener.onButtonClick(ButtonType.PLAY);
+        }
+    }
+
+    public void stopPlay() {
+        mIsMusicPlaying = false;
+        mCenterButton.setImageResource(android.R.drawable.ic_media_play);
     }
 
     @Override
@@ -87,6 +197,8 @@ public class SimplePlayerActivityFragment extends Fragment {
         mListener = null;
     }
 
+    public enum ButtonType {PLAY, STOP, NEXT, PREV}
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -98,8 +210,10 @@ public class SimplePlayerActivityFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        public void onButtonClick(ButtonType button);
+
+        public void onSeekBarClick(int progress);
     }
+
 
 }

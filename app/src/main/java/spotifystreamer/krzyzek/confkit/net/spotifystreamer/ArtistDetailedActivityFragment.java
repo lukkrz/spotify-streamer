@@ -46,6 +46,7 @@ public class ArtistDetailedActivityFragment extends Fragment {
     private ArrayList<SongLocal> mSongsList;
     private Toast mToastText;
     private SpotifyApi mSpotifyApi;
+    private ArtistLocal mArtistLocal;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,12 +82,12 @@ public class ArtistDetailedActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_artist_detailed, container, false);
 
         Bundle bundle = getActivity().getIntent().getExtras();
-        ArtistLocal artistLocal = bundle.getParcelable(MainActivityFragment.EXTRA_ARTIST_DETAILS);
+        mArtistLocal = bundle.getParcelable(MainActivityFragment.EXTRA_ARTIST_DETAILS);
 
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.title_activity_artist_detailed);
-            actionBar.setSubtitle(artistLocal.getmName());
+            actionBar.setSubtitle(mArtistLocal.getmName());
         }
 
         ListView listView = (ListView) rootView.findViewById(R.id.listView);
@@ -100,9 +101,10 @@ public class ArtistDetailedActivityFragment extends Fragment {
                 toast = Toast.makeText(getActivity(), "Clicking on: " + songLocal.getmName(), Toast.LENGTH_SHORT);
                 toast.show();
                 Intent intent = new Intent(getActivity(), SimplePlayerActivity.class);
-                intent.putExtra(ArtistDetailedActivity.EXTRA_SONG_DETAILS, songLocal);
+                intent.putParcelableArrayListExtra(ArtistDetailedActivity.EXTRA_SONG_DETAILS, mSongsList);
+                intent.putExtra(MainActivityFragment.EXTRA_ARTIST_DETAILS, mArtistLocal);
+                intent.putExtra(ArtistDetailedActivity.EXTRA_SONG_CLICKED, position);
                 startActivity(intent);
-
             }
         });
 
@@ -110,7 +112,7 @@ public class ArtistDetailedActivityFragment extends Fragment {
         listView.setEmptyView(emptyText);
 
         if (savedInstanceState == null) {
-            displayTopSongs(artistLocal.getId());
+            displayTopSongs(mArtistLocal.getId());
         }
 
         return rootView;

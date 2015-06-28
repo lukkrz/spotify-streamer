@@ -8,7 +8,9 @@ import android.view.MenuItem;
 
 
 public class ArtistDetailedActivity extends ActionBarActivity {
-    static String EXTRA_SONG_DETAILS = "song";
+    static String EXTRA_SONG_DETAILS = "songs_list";
+    static String EXTRA_SONG_CLICKED = "song_current";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

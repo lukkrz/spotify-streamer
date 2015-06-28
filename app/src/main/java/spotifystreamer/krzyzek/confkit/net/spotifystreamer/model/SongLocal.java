@@ -49,6 +49,10 @@ public class SongLocal implements Parcelable {
         this.mAlbum = mAlbum;
     }
 
+    public String getmUrl() {
+        return mUrl;
+    }
+
     public String getId() {
         return id;
     }
@@ -71,6 +75,10 @@ public class SongLocal implements Parcelable {
 
     public void setmImageSmall(String mImageSmall) {
         this.mImageSmall = mImageSmall;
+    }
+
+    public String getmImageBig() {
+        return mImageBig;
     }
 
     @Override
