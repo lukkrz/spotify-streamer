@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.concurrent.TimeUnit;
+
 import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.ArtistLocal;
 import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.SongLocal;
 
@@ -36,12 +38,16 @@ public class SimplePlayerActivityFragment extends Fragment {
     private SeekBar.OnSeekBarChangeListener mSeekBarListener;
     private ImageView mCenterButton, mLeftButton, mRightButton;
     private boolean mIsMusicPlaying;
+
     private TextView mArtistName;
     private TextView mSongName;
     private TextView mAlbumName;
-    ;
+    private TextView mProgress;
+
     private ImageView mSongImage;
     private SeekBar mSeekBar;
+
+
     public SimplePlayerActivityFragment() {
         // Required empty public constructor
     }
@@ -63,6 +69,25 @@ public class SimplePlayerActivityFragment extends Fragment {
     public void updateSeekBarPostion(int seekMax, int seekProgress) {
         mSeekBar.setMax(seekMax);
         mSeekBar.setProgress(seekProgress);
+        mProgress.setText(getDurationBreakdown(seekProgress) + " / " + getDurationBreakdown(seekMax));
+    }
+
+    public String getDurationBreakdown(long millis) {
+        if (millis < 0) {
+            throw new IllegalArgumentException("Duration must be greater than zero!");
+        }
+
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+        millis -= TimeUnit.MINUTES.toMillis(minutes);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+
+        StringBuilder sb = new StringBuilder(64);
+
+        sb.append(minutes);
+        sb.append(":");
+        sb.append(seconds);
+
+        return (sb.toString());
     }
 
     @Override
@@ -129,6 +154,8 @@ public class SimplePlayerActivityFragment extends Fragment {
 
             }
         });
+
+        mProgress = (TextView) rootView.findViewById(R.id.progress_text);
 
         mLeftButton = (ImageView) rootView.findViewById(R.id.button_left);
         mRightButton = (ImageView) rootView.findViewById(R.id.button_right);

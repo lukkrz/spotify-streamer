@@ -202,7 +202,8 @@ public class SimplePlayerActivity extends ActionBarActivity implements OnFragmen
                     int musicCurTime = mService.getSongPosition();
 
                     Log.d(TAG, "current: " + musicCurTime + " max: " + musicMaxTime);
-                    mSmplePlayerActivityFragment.updateSeekBarPostion(musicMaxTime, musicCurTime);
+                    if (musicMaxTime != 0)
+                        mSmplePlayerActivityFragment.updateSeekBarPostion(musicMaxTime, musicCurTime);
                 }
                 musicMethodsHandler.postDelayed(this, 500);
             }
