@@ -1,6 +1,7 @@
 package spotifystreamer.krzyzek.confkit.net.spotifystreamer;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -29,7 +30,7 @@ import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.SongLocal;
  * Use the {@link SimplePlayerActivityFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SimplePlayerActivityFragment extends Fragment {
+public class SimplePlayerActivityFragment extends DialogFragment {
     private static final String TAG = SimplePlayerActivityFragment.class.getSimpleName();
     private static String MUSING_PLAYING_KEY = "music_key";
     private static String SEEKBAR_LAST_POSITION = "seekbar_pos_key";

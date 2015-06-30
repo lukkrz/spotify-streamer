@@ -210,19 +210,6 @@ public class SimplePlayerActivity extends ActionBarActivity implements OnFragmen
         };
         musicMethodsHandler.postDelayed(musicRun, 500);
 
-
-
-/*
-
-        String counter = intent.getStringExtra("counter");
-        String mediamax = intent.getStringExtra("mediamax");
-
-        int seekProgress = Integer.parseInt(counter);
-        int seekMax = Integer.parseInt(mediamax);
-
-        simplePlayerActivityFragment.updateSeekBarPostion(seekMax, seekProgress);
-*/
-
     }
 
     private class OnCompletionBroadcastReceiver extends BroadcastReceiver {

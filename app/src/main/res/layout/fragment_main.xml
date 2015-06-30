@@ -13,13 +13,14 @@
         android:id="@+id/editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"
-        android:hint="@string/search_artist_hint" />
+        android:hint="@string/search_artist_hint"
+        android:inputType="text" />
 
     <ListView
-        android:id="@+id/listView"
+        android:id="@+id/artist_list_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:choiceMode="singleChoice" />
 
     <TextView
         android:id="@android:id/empty"

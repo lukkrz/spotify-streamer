@@ -1,6 +1,6 @@
 package spotifystreamer.krzyzek.confkit.net.spotifystreamer;
 
-import android.content.Intent;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -42,6 +42,8 @@ public class ArtistDetailedActivityFragment extends Fragment {
     private static int LARGE_PICTURE_DIMENS = 640;
     private static int SMALL_PICTURE_DIMENS = 200;
 
+    OnSongsListSelectedListener mOnSongsListSelectedListener;
+
     private SpotifySongsAdapter mSongsAdapter;
     private ArrayList<SongLocal> mSongsList;
     private Toast mToastText;
@@ -76,47 +78,63 @@ public class ArtistDetailedActivityFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            mOnSongsListSelectedListener = (OnSongsListSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnSongsListSelectedListener");
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_artist_detailed, container, false);
 
         Bundle bundle = getActivity().getIntent().getExtras();
-        mArtistLocal = bundle.getParcelable(MainActivityFragment.EXTRA_ARTIST_DETAILS);
+
+        if (bundle != null)
+            mArtistLocal = bundle.getParcelable(MainActivityFragment.EXTRA_ARTIST_DETAILS);
 
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.title_activity_artist_detailed);
-            actionBar.setSubtitle(mArtistLocal.getmName());
+            //actionBar.setSubtitle(mArtistLocal.getmName());
         }
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listView);
+        ListView listView = (ListView) rootView.findViewById(R.id.artist_detailed_list_view);
         listView.setAdapter(mSongsAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                SongLocal songLocal = (SongLocal) parent.getAdapter().getItem(position);
-                Toast toast = Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT);
+                // SongLocal songLocal = (SongLocal) parent.getAdapter().getItem(position);
+               /* Toast toast = Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT);
                 toast.cancel();
                 toast = Toast.makeText(getActivity(), "Clicking on: " + songLocal.getmName(), Toast.LENGTH_SHORT);
-                toast.show();
-                Intent intent = new Intent(getActivity(), SimplePlayerActivity.class);
+                toast.show();*/
+                /*Intent intent = new Intent(getActivity(), SimplePlayerActivity.class);
                 intent.putParcelableArrayListExtra(ArtistDetailedActivity.EXTRA_SONG_DETAILS, mSongsList);
                 intent.putExtra(MainActivityFragment.EXTRA_ARTIST_DETAILS, mArtistLocal);
                 intent.putExtra(ArtistDetailedActivity.EXTRA_SONG_CLICKED, position);
-                startActivity(intent);
+                startActivity(intent);*/
+                mOnSongsListSelectedListener.OnSongsListSelected(mArtistLocal, mSongsList, position);
             }
         });
 
         TextView emptyText = (TextView) rootView.findViewById(android.R.id.empty);
         listView.setEmptyView(emptyText);
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && mArtistLocal != null) {
             displayTopSongs(mArtistLocal.getId());
         }
 
         return rootView;
     }
+
 
     public void displayTopSongs(String artistID) {
         mSongsAdapter.clear();
@@ -191,5 +209,9 @@ public class ArtistDetailedActivityFragment extends Fragment {
             songLocalArray.add(new SongLocal(track.id, track.name, track.album.name, track.preview_url, urlOfImageSmall, urlOfImageBig));
         }
         return songLocalArray;
+    }
+
+    public interface OnSongsListSelectedListener {
+        void OnSongsListSelected(ArtistLocal artist, ArrayList songList, int position);
     }
 }

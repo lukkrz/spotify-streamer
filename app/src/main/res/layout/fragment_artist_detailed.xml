@@ -10,7 +10,7 @@
     tools:context=".ArtistDetailedActivity">
 
     <ListView
-        android:id="@+id/listView"
+        android:id="@+id/artist_detailed_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

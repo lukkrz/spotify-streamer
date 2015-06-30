@@ -6,15 +6,19 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
 
-public class MainActivity extends ActionBarActivity {
+import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.ArtistLocal;
+
+
+public class MainActivity extends ActionBarActivity implements MainActivityFragment.OnArtistListSelectedListener, ArtistDetailedActivityFragment.OnSongsListSelectedListener {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -38,5 +42,24 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void OnArtistListSelected(ArtistLocal artistLocal, int position) {
+        ArtistDetailedActivityFragment artistDetailed = (ArtistDetailedActivityFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_artist_detailed);
+
+        if (artistDetailed == null) {
+            Intent intent = new Intent(this, ArtistDetailedActivity.class);
+            intent.putExtra(MainActivityFragment.EXTRA_ARTIST_DETAILS, artistLocal);
+            startActivity(intent);
+        } else {
+            artistDetailed.displayTopSongs(artistLocal.getId());
+        }
+    }
+
+    @Override
+    public void OnSongsListSelected(ArtistLocal artist, ArrayList songList, int position) {
+
     }
 }

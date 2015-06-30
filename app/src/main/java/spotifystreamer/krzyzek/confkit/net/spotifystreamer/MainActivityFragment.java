@@ -1,6 +1,6 @@
 package spotifystreamer.krzyzek.confkit.net.spotifystreamer;
 
-import android.content.Intent;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -26,16 +26,13 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.ArtistLocal;
 
-
-/**
- * A placeholder fragment containing a simple view.
- */
 public class MainActivityFragment extends Fragment {
     public static String EXTRA_ARTIST_DETAILS = "spotifystreamer.krzyzek.confkit.net.spotifystreamer.ARTIST_DETAILS";
     private static String TAG = MainActivityFragment.class.getName();
     private static String ARTIST_ARRAY_KEY = "artistArray";
     private static String SEARCH_TEXT_KEY = "searchText";
 
+    OnArtistListSelectedListener mCallback;
     private ArrayAdapter<ArtistLocal> mArtistAdapter;
     private TextView mSearchArtist;
     private SpotifyApi mSpotifyApi;
@@ -74,6 +71,18 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            mCallback = (OnArtistListSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnArtistListSelectedListener");
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -100,15 +109,13 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listView);
+        ListView listView = (ListView) rootView.findViewById(R.id.artist_list_view);
         listView.setAdapter(mArtistAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ArtistLocal artist = (ArtistLocal) parent.getAdapter().getItem(position);
-                Intent intent = new Intent(getActivity(), ArtistDetailedActivity.class);
-                intent.putExtra(EXTRA_ARTIST_DETAILS, artist);
-                startActivity(intent);
+                ArtistLocal artistLocal = (ArtistLocal) parent.getAdapter().getItem(position);
+                mCallback.OnArtistListSelected(artistLocal, position);
             }
         });
 
@@ -177,6 +184,10 @@ public class MainActivityFragment extends Fragment {
             artistLocalArray.add(new ArtistLocal(artist.id, artist.name, artistImage));
         }
         return artistLocalArray;
+    }
+
+    public interface OnArtistListSelectedListener {
+        public void OnArtistListSelected(ArtistLocal artist, int position);
     }
 
 }

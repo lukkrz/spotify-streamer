@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/frags"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+    <!-- "Fragment A" -->
+    <fragment
+        android:id="@+id/artist_fragment"
+        class="spotifystreamer.krzyzek.confkit.net.spotifystreamer.MainActivityFragment"
+        android:layout_width="@dimen/artist_fragment_size"
+        android:layout_height="match_parent" />
+    <!-- "Fragment B" -->
+    <fragment
+        android:id="@+id/fragment_artist_detailed"
+        class="spotifystreamer.krzyzek.confkit.net.spotifystreamer.ArtistDetailedActivityFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>
