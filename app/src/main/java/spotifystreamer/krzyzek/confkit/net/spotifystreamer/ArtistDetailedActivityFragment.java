@@ -129,15 +129,19 @@ public class ArtistDetailedActivityFragment extends Fragment {
         listView.setEmptyView(emptyText);
 
         if (savedInstanceState == null && mArtistLocal != null) {
-            displayTopSongs(mArtistLocal.getId());
+            displayTopSongs(mArtistLocal);
         }
 
         return rootView;
     }
 
 
-    public void displayTopSongs(String artistID) {
+    public void displayTopSongs(ArtistLocal artistLocal) {
         mSongsAdapter.clear();
+
+        mArtistLocal = artistLocal;
+
+        String artistID = artistLocal.getId();
 
         SpotifyService spotify = mSpotifyApi.getService();
 

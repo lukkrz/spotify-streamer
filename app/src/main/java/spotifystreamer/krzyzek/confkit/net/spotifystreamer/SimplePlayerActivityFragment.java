@@ -3,6 +3,7 @@ package spotifystreamer.krzyzek.confkit.net.spotifystreamer;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -32,9 +33,11 @@ import spotifystreamer.krzyzek.confkit.net.spotifystreamer.model.SongLocal;
  */
 public class SimplePlayerActivityFragment extends DialogFragment {
     private static final String TAG = SimplePlayerActivityFragment.class.getSimpleName();
+
     private static String MUSING_PLAYING_KEY = "music_key";
     private static String SEEKBAR_LAST_POSITION = "seekbar_pos_key";
     private static String SEEKBAR_MAX_POSITION = "seekbar_max_key";
+
     private OnFragmentInteractionListener mListener;
     private SeekBar.OnSeekBarChangeListener mSeekBarListener;
     private ImageView mCenterButton, mLeftButton, mRightButton;
@@ -48,9 +51,14 @@ public class SimplePlayerActivityFragment extends DialogFragment {
     private ImageView mSongImage;
     private SeekBar mSeekBar;
 
-
     public SimplePlayerActivityFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+
     }
 
     public void updateUI(ArtistLocal artistLocal, SongLocal songLocal) {
@@ -117,7 +125,8 @@ public class SimplePlayerActivityFragment extends DialogFragment {
         View rootView = inflater.inflate(R.layout.fragment_simple_player_activity, container, false);
         Bundle bundle = getActivity().getIntent().getExtras();
 
-        bundle.setClassLoader(SongLocal.class.getClassLoader());
+        // TODO: add playing!!
+//        bundle.setClassLoader(SongLocal.class.getClassLoader());
         // SongLocal songLocal = bundle.getParcelable(ArtistDetailedActivity.EXTRA_SONG_DETAILS);
 
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
@@ -239,8 +248,9 @@ public class SimplePlayerActivityFragment extends DialogFragment {
      */
     public interface OnFragmentInteractionListener {
         public void onButtonClick(ButtonType button);
-
         public void onSeekBarClick(int progress);
+
+        public void onDismiss();
     }
 
 

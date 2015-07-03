@@ -33,7 +33,7 @@ public class SimplePlayerActivity extends ActionBarActivity implements OnFragmen
     ArrayList<SongLocal> mArrayListSong;
     ArtistLocal mArtistLocal;
     Handler musicMethodsHandler;
-    SimplePlayerActivityFragment mSmplePlayerActivityFragment;
+    SimplePlayerActivityFragment mSimplePlayerActivityFragment;
     OnCompletionBroadcastReceiver mOnCompletionBroadcastReceiver;
     /**
      * Defines callbacks for service binding, passed to bindService()
@@ -58,7 +58,6 @@ public class SimplePlayerActivity extends ActionBarActivity implements OnFragmen
             mBound = true;
             updateSongView();
             updateSeekBarPosition();
-
         }
 
         @Override
@@ -82,6 +81,7 @@ public class SimplePlayerActivity extends ActionBarActivity implements OnFragmen
     @Override
     protected void onStart() {
         super.onStart();
+
         // Bind to LocalService
         mIntent = new Intent(this, SimplePlayerService.class);
         mIntent.putParcelableArrayListExtra(ArtistDetailedActivity.EXTRA_SONG_DETAILS, mArrayListSong);
@@ -91,7 +91,7 @@ public class SimplePlayerActivity extends ActionBarActivity implements OnFragmen
         bindService(mIntent, mConnection, Context.BIND_AUTO_CREATE);
         startService(mIntent);
 
-        mSmplePlayerActivityFragment = (SimplePlayerActivityFragment)
+        mSimplePlayerActivityFragment = (SimplePlayerActivityFragment)
                 getFragmentManager().findFragmentById(R.id.fragment_simple_player);
 
         mOnCompletionBroadcastReceiver = new OnCompletionBroadcastReceiver();
@@ -177,19 +177,24 @@ public class SimplePlayerActivity extends ActionBarActivity implements OnFragmen
         }
     }
 
+    @Override
+    public void onDismiss() {
+
+    }
+
     private void updateSongView() {
         /*SimplePlayerActivityFragment simplePlayerActivityFragment = (SimplePlayerActivityFragment)
                 getFragmentManager().findFragmentById(R.id.fragment_simple_player);*/
         SongLocal songLocal = mService.getCurrentSong();
         ArtistLocal artistLocal = mService.getCurrentArtist();
-        mSmplePlayerActivityFragment.updateUI(artistLocal, songLocal);
+        mSimplePlayerActivityFragment.updateUI(artistLocal, songLocal);
         /*if (mService.isCompleted())
-            mSmplePlayerActivityFragment.stopPlay();
+            mSimplePlayerActivityFragment.stopPlay();
 */
     }
 
     private void updateSeekBarPosition() {
-        mSmplePlayerActivityFragment = (SimplePlayerActivityFragment)
+        mSimplePlayerActivityFragment = (SimplePlayerActivityFragment)
                 getFragmentManager().findFragmentById(R.id.fragment_simple_player);
 
         musicMethodsHandler = new Handler();
@@ -203,7 +208,7 @@ public class SimplePlayerActivity extends ActionBarActivity implements OnFragmen
 
                     Log.d(TAG, "current: " + musicCurTime + " max: " + musicMaxTime);
                     if (musicMaxTime != 0)
-                        mSmplePlayerActivityFragment.updateSeekBarPostion(musicMaxTime, musicCurTime);
+                        mSimplePlayerActivityFragment.updateSeekBarPostion(musicMaxTime, musicCurTime);
                 }
                 musicMethodsHandler.postDelayed(this, 500);
             }
@@ -215,7 +220,7 @@ public class SimplePlayerActivity extends ActionBarActivity implements OnFragmen
     private class OnCompletionBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mSmplePlayerActivityFragment.stopPlay();
+            mSimplePlayerActivityFragment.stopPlay();
         }
     }
 

@@ -54,8 +54,7 @@ public class ArtistDetailedActivity extends ActionBarActivity implements ArtistD
             intent.putExtra(ArtistDetailedActivity.EXTRA_SONG_CLICKED, position);
             startActivity(intent);
         } else {
-            //  artistDetailed.updateContent(position);
-            //  artistDetailed
+            // do nothing
         }
     }
 }
